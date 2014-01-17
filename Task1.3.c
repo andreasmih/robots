@@ -4,8 +4,9 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define dist 10
+#define dist 26
 
+int i,x,sock;
 char buf[80];
 
 int reads()
@@ -25,9 +26,69 @@ int reads()
     return result;
 }
 
+void straightLine()
+{
+    
+    sprintf(buf, "S MEL\n");
+    write(sock, buf, strlen(buf));
+    memset(buf, 0, 80);
+    read(sock, buf, 80);
+    x=reads();
+    printf("X equals to : %d\n", x);
+    i=x;
+    float value = dist * 36/3.14;
+    printf("The value is : %f\n", value);
+    
+    while(i-x <= value)
+    {
+        sprintf(buf, "M LR 10 10\n");
+		write(sock, buf, strlen(buf));
+		memset(buf, 0, 80);
+		read(sock, buf, 80);
+        
+        sprintf(buf, "S MEL\n");
+		write(sock, buf, strlen(buf));
+		memset(buf, 0, 80);
+		read(sock, buf, 80);
+        i=reads();
+        printf("I equals to : %d\n",i);
+    }
+}
+
+void turning()
+{
+    
+        
+    sprintf(buf, "S MEL\n");
+    write(sock, buf, strlen(buf));
+    memset(buf, 0, 80);
+    read(sock, buf, 80);
+    
+    int x;
+    x=reads();
+    printf("X equals to : %d\n", x);
+    i=x;
+    
+	while ( i-x < 212)
+    {
+        sprintf(buf, "M LR 1 -1\n");
+		write(sock, buf, strlen(buf));
+		memset(buf, 0, 80);
+		read(sock, buf, 80);
+        
+        sprintf(buf, "S MEL\n");
+		write(sock, buf, strlen(buf));
+		memset(buf, 0, 80);
+		read(sock, buf, 80);
+        
+        i=reads();
+        printf("I equals to : %d\n",i);
+	}
+
+}
+
 int main() {
 	struct sockaddr_in s_addr;
-	int i, sock;
     
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 		fprintf(stderr, "Failed to create socket\n");
@@ -43,33 +104,17 @@ int main() {
 		exit(1);
 	}
     
-    sleep(1);
+    sleep(5);
     read(sock, buf, 80);
     memset(buf, 0, 80);
-    
-    sprintf(buf, "S MEL\n");
-    write(sock, buf, strlen(buf));
-    memset(buf, 0, 80);
-    read(sock, buf, 80);
-    
-    int x;
-    x=reads();
-    printf("X equals to : %d\n", x);
-    i=x;
-    
-	while ( i-x < 211)
+
+    int w;
+    for(w=1;w<=4;++w)
     {
-        sprintf(buf, "M LR 1 -1\n");
-		write(sock, buf, strlen(buf));
-		memset(buf, 0, 80);
-		read(sock, buf, 80);
-        
-        sprintf(buf, "S MEL\n");
-		write(sock, buf, strlen(buf));
-		memset(buf, 0, 80);
-		read(sock, buf, 80);
-        
-        i=reads();
-        printf("I equals to : %d\n",i);
-	}
+        memset(buf, 0, 80);
+        straightLine();
+        printf("code\n");
+        memset(buf, 0, 80);
+        turning();
+    }
 }
