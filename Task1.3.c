@@ -8,7 +8,13 @@
 
 int i,x,sock;
 char buf[80];
-
+void dropSpot()
+{
+    sprintf(buf, "C TRAIL\n");
+    write(sock, buf, strlen(buf));
+    memset(buf, 0, 80);
+    read(sock, buf, 80);
+}
 int reads()
 {
     int q;
@@ -26,7 +32,7 @@ int reads()
     return result;
 }
 
-void straightLine()
+void straightLine(int distance)
 {
     
     sprintf(buf, "S MEL\n");
@@ -36,12 +42,12 @@ void straightLine()
     x=reads();
     printf("X equals to : %d\n", x);
     i=x;
-    float value = dist * 36/3.14;
+    float value = distance * 36/3.14;
     printf("The value is : %f\n", value);
     
     while(i-x <= value)
     {
-        sprintf(buf, "M LR 20 20\n");
+        sprintf(buf, "M LR 10 10\n");
 		write(sock, buf, strlen(buf));
 		memset(buf, 0, 80);
 		read(sock, buf, 80);
@@ -55,37 +61,130 @@ void straightLine()
     }
 }
 
-void turning()
+void turning(int angle,char dir)
+{
+    if(dir == 'r' || dir == 'R' )
+    {
+        sprintf(buf, "S MEL\n");
+        write(sock, buf, strlen(buf));
+        memset(buf, 0, 80);
+        read(sock, buf, 80);
+    
+        int x;
+        x=reads();
+        printf("X equals to : %d\n", x);
+        i=x;
+        float value = 212.5 * angle / 90 ;
+        printf("The value is: %f\n", value);
+        while ( i-x <= value)
+        {
+            sprintf(buf, "M LR 10 -10\n");
+            write(sock, buf, strlen(buf));
+            memset(buf, 0, 80);
+            read(sock, buf, 80);
+            sprintf(buf, "S MEL\n");
+            write(sock, buf, strlen(buf));
+            memset(buf, 0, 80);
+            read(sock, buf, 80);
+        
+            i=reads();
+            printf("I equals to : %d\n",i);
+        }
+    }
+    
+    if(dir == 'l' || dir == 'L')
+    {
+        sprintf(buf, "S MER\n");
+        write(sock, buf, strlen(buf));
+        memset(buf, 0, 80);
+        read(sock, buf, 80);
+        
+        int x;
+        x=reads();
+        printf("X equals to : %d\n", x);
+        i=x;
+        float value = 212 * angle / 90 ;
+        printf("The value is: %f\n", value);
+        while ( i-x <= value)
+        {
+            sprintf(buf, "M LR -10 10\n");
+            write(sock, buf, strlen(buf));
+            memset(buf, 0, 80);
+            read(sock, buf, 80);
+            sprintf(buf, "S MER\n");
+            write(sock, buf, strlen(buf));
+            memset(buf, 0, 80);
+            read(sock, buf, 80);
+            
+            i=reads();
+            printf("I equals to : %d\n",i);
+        }
+
+    }
+
+}
+
+void drawSquare(int distance)
+{
+    int w;
+    for(w=1;w<=4;++w)
+    {
+        dropSpot();
+        straightLine(distance);
+        turning(90,'r');
+    }
+}
+
+void drawTriangle(int distance)
+{
+    int w;
+    for(w=1;w<=3;++w)
+    {
+        dropSpot();
+        straightLine(distance);
+        turning(60,'l');
+    }
+}
+void drawStar(int size)
 {
     
-        
-    sprintf(buf, "S MEL\n");
+    int w=6;
+    for(w=1;w<=6;++w)
+    {
+        dropSpot();
+        straightLine(size);
+        turning(60,'l');
+        dropSpot();
+        straightLine(size);
+        turning(120,'r');
+    }
+}
+void drawCircle(int speed, int radius) 
+{
+    sprintf(buf, "S MER\n");
     write(sock, buf, strlen(buf));
     memset(buf, 0, 80);
     read(sock, buf, 80);
-    
-    int x;
     x=reads();
-    printf("X equals to : %d\n", x);
     i=x;
-    
-	while ( i-x < 212)
+    int compare = radius * 36 / 3.14;
+    int secondspeed = (int) speed*radius/(radius+23);
+    while( i-x <= 72*radius )   // get the condition right
     {
-        sprintf(buf, "M LR 20 -20\n");
-		write(sock, buf, strlen(buf));
-		memset(buf, 0, 80);
-		read(sock, buf, 80);
+        sprintf(buf, "M LR %d %d\n",speed,secondspeed);
+        write(sock, buf, strlen(buf));
+        memset(buf, 0, 80);
+        read(sock, buf, 80);
         
-        sprintf(buf, "S MEL\n");
-		write(sock, buf, strlen(buf));
-		memset(buf, 0, 80);
-		read(sock, buf, 80);
-        
+        sprintf(buf, "S MER\n");
+        write(sock, buf, strlen(buf));
+        memset(buf, 0, 80);
+        read(sock, buf, 80);
         i=reads();
-        printf("I equals to : %d\n",i);
-	}
-
+        printf("I equals to: %d %d\n",i-x,72*radius);
+    }
 }
+
 
 int main() {
 	struct sockaddr_in s_addr;
@@ -104,17 +203,9 @@ int main() {
 		exit(1);
 	}
     
-    sleep(5);
+    sleep(1);
     read(sock, buf, 80);
     memset(buf, 0, 80);
-
-    int w;
-    for(w=1;w<=4;++w)
-    {
-        memset(buf, 0, 80);
-        straightLine();
-        printf("code\n");
-        memset(buf, 0, 80);
-        turning();
-    }
+    
+    straightLine(26);
 }
