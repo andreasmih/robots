@@ -41,7 +41,7 @@ void straightLine()
     
     while(i-x <= value)
     {
-        sprintf(buf, "M LR 10 10\n");
+        sprintf(buf, "M LR 20 20\n");
 		write(sock, buf, strlen(buf));
 		memset(buf, 0, 80);
 		read(sock, buf, 80);
@@ -71,7 +71,7 @@ void turning()
     
 	while ( i-x < 212)
     {
-        sprintf(buf, "M LR 1 -1\n");
+        sprintf(buf, "M LR 20 -20\n");
 		write(sock, buf, strlen(buf));
 		memset(buf, 0, 80);
 		read(sock, buf, 80);
